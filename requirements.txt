@@ -1,0 +1,11 @@
+llama-index
+qdrant_client
+pypdf
+transformers
+torch
+spacy
+ebooklib
+pandas
+nltk
+bs4
+ipycytoscape
