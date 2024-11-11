@@ -1,0 +1,32 @@
+version: '3.7'
+services:
+  neo4j:
+    image: neo4j:5.20.0
+    container_name: neo4j-books
+    restart: always
+    hostname: neo4j
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - $PWD/plugins:/plugins
+      - $PWD/data:/data
+      - $PWD/logs:/logs
+      - $PWD/conf:/conf
+      - $PWD/import:/import
+    environment:
+      - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
+      - NEO4J_AUTH=neo4j/admin1234
+      # - NEO4J_dbms_security_procedures_unrestricted=gds.,apoc.
+      # - NEO4J_dbms_security_procedures_allowlist=gds.,apoc.
+      - NEO4J_PLUGINS=["apoc","apoc-extended", "graph-data-science"]
+      - NEO4J_apoc_export_file_enabled=true
+      - NEO4J_apoc_import_file_enabled=true
+      # - NEO4J_dbms_security_procedures_unrestricted=apoc.\\\* \
+      - NEO4J_apoc_import_file_use__neo4j__config=false
+
+      - NEO4J_EDITION=community
+    network_mode: host
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider localhost:7474 || exit 1"]
+    # user: ${USER_ID}:${GROUP_ID}

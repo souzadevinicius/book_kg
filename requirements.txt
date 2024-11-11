@@ -9,3 +9,6 @@ pandas
 nltk
 bs4
 ipycytoscape
+tensorflow
+neo4j-runway==0.5.2
+tf-keras

@@ -13,31 +13,35 @@ def _flatten_occurences(ner_result):
     return flattened
 
 def _parse_chapter(row: pd.Series, model, excluded_words = []):
-    occurrences, cooccurences = text_analysis(row["Chapter Number"], row["Chapter Content"], model, excluded_words)
-    occurrences_flatened = _flatten_occurences(occurrences)
-    occurences_summary_df = pd.DataFrame([occurrences_flatened]).fillna(0)
-    occurrences_overall_summary = occurences_summary_df.sum().sort_values(ascending=False)
-    occurrences_overall_summary = pd.DataFrame(occurrences_overall_summary)
-    occurrences_overall_summary["chapter"] = row["Chapter Number"]
-    occurrences_overall_summary.reset_index(inplace=True)
-    occurrences_overall_summary.rename(columns={0: "count", "index": "key"}, inplace=True)
-    occurrences_overall_summary = occurrences_overall_summary[["chapter", "key", "count"]]
+    # occurrences, cooccurences = text_analysis(row["Chapter Number"], row["Chapter Content"], model, excluded_words)
+    # occurrences_flatened = _flatten_occurences(occurrences)
+    # occurences_summary_df = pd.DataFrame([occurrences_flatened]).fillna(0)
+    # occurrences_overall_summary = occurences_summary_df.sum().sort_values(ascending=False)
+    # occurrences_overall_summary = pd.DataFrame(occurrences_overall_summary)
+    # occurrences_overall_summary["chapter"] = row["Chapter Number"]
+    # occurrences_overall_summary.reset_index(inplace=True)
+    # occurrences_overall_summary.rename(columns={0: "count", "index": "key"}, inplace=True)
+    # occurrences_overall_summary = occurrences_overall_summary[["chapter", "key", "count"]]
+    cooccurences = text_analysis(row["Chapter Number"], row["Chapter Content"], model, excluded_words)
     if cooccurences:
-        result_df = pd.DataFrame.from_dict(cooccurences, orient='index')
-        result_df.reset_index(inplace=True)
+        result_df = pd.DataFrame(cooccurences)
         result_df["chapter"] = row["Chapter Number"]
-        result_df.rename(columns={"index": "key"}, inplace=True)
-        result_df = result_df[["chapter", "key", "total_importance", "global","paragraph","sentence"]]
+        # result_df = pd.DataFrame.from_dict(cooccurences, orient='index')
+        # result_df.reset_index(inplace=True)
+        # result_df.rename(columns={"index": "key"}, inplace=True)
+        # result_df = result_df[["chapter", "key", "total_importance", "paragraph","sentence"]]
     else:
         result_df = None
-
-    return pd.Series({
-        "occurrences": occurrences_overall_summary,
-        "cooccurrences": result_df
-    })
+    # return pd.Series({
+    #     "occurrences": occurrences_overall_summary,
+    #     "cooccurrences": result_df
+    # })
+    return result_df
 
 def book_analysis(book: pd.DataFrame, model: spacy.Language, excluded_words=[]) -> pd.DataFrame:
-    return book.apply(lambda row: _parse_chapter(row, model, excluded_words=excluded_words), axis=1)
+    df =  book.apply(lambda row: _parse_chapter(row, model, excluded_words=excluded_words), axis=1)
+    df_concat = pd.concat(df.values)
+    return df_concat
 
 
 def _get_unique_elements(series):
